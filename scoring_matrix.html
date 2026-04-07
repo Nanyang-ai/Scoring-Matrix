@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operational Risk Trend — Scoring Matrix</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #ffffff;
+    --bg2: #f8f7f5;
+    --bg3: #f1f0ed;
+    --bg4: #e8e6e1;
+    --border: rgba(0,0,0,0.08);
+    --border2: rgba(0,0,0,0.14);
+    --text: #1a1917;
+    --text2: #4a4845;
+    --text3: #9a9790;
+    --accent: #c47d2a;
+    --neg3: #dc2626; --neg3bg: rgba(220,38,38,0.07); --neg3border: rgba(220,38,38,0.2);
+    --neg2: #ea580c; --neg2bg: rgba(234,88,12,0.07); --neg2border: rgba(234,88,12,0.2);
+    --neg1: #ca8a04; --neg1bg: rgba(202,138,4,0.07); --neg1border: rgba(202,138,4,0.2);
+    --zero: #6b7280; --zerobg: rgba(107,114,128,0.06); --zeroborder: rgba(107,114,128,0.18);
+    --pos1: #65a30d; --pos1bg: rgba(101,163,13,0.07); --pos1border: rgba(101,163,13,0.2);
+    --pos2: #16a34a; --pos2bg: rgba(22,163,74,0.07); --pos2border: rgba(22,163,74,0.2);
+    --pos3: #0d9488; --pos3bg: rgba(13,148,136,0.07); --pos3border: rgba(13,148,136,0.2);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .site-header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .header-tag {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 64px 32px 48px;
+    max-width: 860px;
+  }
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+  .hero p {
+    font-size: 15px;
+    color: var(--text2);
+    max-width: 640px;
+    line-height: 1.7;
+  }
+
+  /* NAV */
+  .nav-bar {
+    padding: 0 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    background: var(--bg2);
+    position: sticky;
+    top: 64px;
+    z-index: 99;
+  }
+  .nav-bar::-webkit-scrollbar { display: none; }
+  .nav-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 16px 18px;
+    background: none;
+    border: none;
+    color: var(--text3);
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    letter-spacing: 0.01em;
+  }
+  .nav-btn:hover { color: var(--text2); }
+  .nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* SUB NAV */
+  .sub-nav {
+    padding: 16px 32px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    min-height: 56px;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .sub-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--text3);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .sub-btn:hover { border-color: rgba(255,255,255,0.25); color: var(--text2); }
+  .sub-btn.active { background: var(--accent); border-color: var(--accent); color: #0f0f0f; }
+
+  /* CONTENT */
+  .content {
+    padding: 32px;
+    max-width: 900px;
+  }
+
+  /* OVERALL MATRIX */
+  .matrix-intro {
+    font-size: 13px;
+    color: var(--text3);
+    line-height: 1.7;
+    margin-bottom: 28px;
+    padding: 16px 20px;
+    background: var(--bg3);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+  }
+
+  .score-levels { display: flex; flex-direction: column; gap: 10px; }
+
+  .score-level {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    transition: border-color 0.15s;
+  }
+  .score-level:hover { border-color: var(--border2); }
+
+  .level-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .level-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 5px;
+    white-space: nowrap;
+    min-width: 42px;
+    text-align: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .neg3-badge { background: var(--neg3bg); color: var(--neg3); border: 1px solid var(--neg3border); }
+  .neg2-badge { background: var(--neg2bg); color: var(--neg2); border: 1px solid var(--neg2border); }
+  .neg1-badge { background: var(--neg1bg); color: var(--neg1); border: 1px solid var(--neg1border); }
+  .zero-badge { background: var(--zerobg); color: var(--zero); border: 1px solid var(--zeroborder); }
+  .pos1-badge { background: var(--pos1bg); color: var(--pos1); border: 1px solid var(--pos1border); }
+  .pos2-badge { background: var(--pos2bg); color: var(--pos2); border: 1px solid var(--pos2border); }
+  .pos3-badge { background: var(--pos3bg); color: var(--pos3); border: 1px solid var(--pos3border); }
+
+  .neg3-header { background: rgba(220,38,38,0.04); }
+  .neg2-header { background: rgba(234,88,12,0.04); }
+  .neg1-header { background: rgba(202,138,4,0.04); }
+  .zero-header { background: var(--bg2); }
+  .pos1-header { background: rgba(101,163,13,0.04); }
+  .pos2-header { background: rgba(22,163,74,0.04); }
+  .pos3-header { background: rgba(13,148,136,0.04); }
+
+  .neg3-card { border-color: var(--neg3border); }
+  .neg2-card { border-color: var(--neg2border); }
+  .neg1-card { border-color: var(--neg1border); }
+  .zero-card { border-color: var(--zeroborder); }
+  .pos1-card { border-color: var(--pos1border); }
+  .pos2-card { border-color: var(--pos2border); }
+  .pos3-card { border-color: var(--pos3border); }
+
+  .level-meta { flex: 1; }
+  .level-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .level-bullets { display: flex; flex-direction: column; gap: 4px; }
+  .level-bullet {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.55;
+    display: flex;
+    gap: 8px;
+  }
+  .bullet-dot { flex-shrink: 0; margin-top: 8px; width: 3px; height: 3px; border-radius: 50%; background: var(--text3); }
+
+  .chevron {
+    width: 16px; height: 16px;
+    color: var(--text3);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .score-level.open .chevron { transform: rotate(180deg); }
+
+  .level-body {
+    display: none;
+    padding: 0 20px 20px;
+    border-top: 1px solid var(--border);
+  }
+  .score-level.open .level-body { display: block; }
+
+  .actions-section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 20px 0 14px;
+  }
+
+  .domain-group { margin-bottom: 16px; }
+  .domain-group-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 8px;
+  }
+  .action-list { display: flex; flex-direction: column; gap: 6px; }
+  .action-item {
+    display: flex;
+    gap: 10px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text2);
+  }
+  .action-dot { width: 4px; height: 4px; border-radius: 50%; margin-top: 8px; flex-shrink: 0; }
+  .neg3-dot { background: var(--neg3); }
+  .neg2-dot { background: var(--neg2); }
+  .neg1-dot { background: var(--neg1); }
+  .zero-dot { background: var(--zero); }
+  .pos1-dot { background: var(--pos1); }
+  .pos2-dot { background: var(--pos2); }
+  .pos3-dot { background: var(--pos3); }
+
+  .domain-divider { height: 1px; background: var(--border); margin: 14px 0; }
+
+  /* INDICATOR */
+  .ind-header { margin-bottom: 6px; }
+  .ind-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .ind-desc { font-size: 13px; color: var(--text2); line-height: 1.65; margin-bottom: 10px; }
+  .boundary-note {
+    font-size: 12px;
+    line-height: 1.65;
+    margin-bottom: 24px;
+    padding: 12px 16px;
+    border-radius: 7px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text3);
+  }
+  .boundary-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 5px;
+  }
+
+  .score-cards { display: flex; flex-direction: column; gap: 8px; }
+  .score-card {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    transition: border-color 0.15s;
+  }
+  .score-card:hover { border-color: var(--border2); }
+  .score-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .score-meta { flex: 1; }
+  .score-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .score-anchor { font-size: 12px; color: var(--text2); line-height: 1.55; }
+
+  .score-body {
+    display: none;
+    padding: 0 18px 16px;
+    border-top: 1px solid var(--border);
+  }
+  .score-card.open .score-body { display: block; }
+
+  .threshold-block {
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-radius: 7px;
+    font-size: 12px;
+    line-height: 1.7;
+    border-left: 3px solid;
+  }
+  .neg3-threshold { background: var(--neg3bg); border-color: var(--neg3); color: #991b1b; }
+  .neg2-threshold { background: var(--neg2bg); border-color: var(--neg2); color: #9a3412; }
+  .neg1-threshold { background: var(--neg1bg); border-color: var(--neg1); color: #713f12; }
+  .zero-threshold { background: var(--zerobg); border-color: var(--zero); color: var(--text2); }
+  .pos1-threshold { background: var(--pos1bg); border-color: var(--pos1); color: #365314; }
+  .pos2-threshold { background: var(--pos2bg); border-color: var(--pos2); color: #14532d; }
+  .pos3-threshold { background: var(--pos3bg); border-color: var(--pos3); color: #134e4a; }
+
+  .threshold-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 5px;
+  }
+
+  .adj-block {
+    margin-top: 10px;
+    padding: 10px 14px;
+    border-radius: 7px;
+    font-size: 12px;
+    line-height: 1.65;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text3);
+  }
+  .adj-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 4px;
+    opacity: 0.7;
+  }
+
+  .ind-separator { height: 36px; }
+
+  /* FOOTER */
+  .site-footer {
+    margin-top: 80px;
+    padding: 32px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: gap;
+  }
+  .footer-left {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .footer-right {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: 'DM Mono', monospace;
+  }
+
+  @media (max-width: 600px) {
+    .site-header, .nav-bar, .sub-nav, .content, .hero { padding-left: 16px; padding-right: 16px; }
+    .hero { padding-top: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">Operational Risk Trends</div>
+  <div class="header-tag">Scoring Matrix v1.0</div>
+</header>
+
+<section class="hero">
+  <div class="hero-eyebrow">Quarterly trend intelligence framework</div>
+  <h1>From observable evidence<br>to operational response</h1>
+  <p>Scores reflect material shifts grounded in observable events this quarter — not forecasts. Each score level carries defined operational implications. Most countries score 0 — a non-zero score is a meaningful signal.</p>
+</section>
+
+<nav class="nav-bar" id="topNav"></nav>
+<div class="sub-nav" id="subNav"></div>
+<div class="content" id="content"></div>
+
+<footer class="site-footer">
+  <div class="footer-left">Operational Risk Trends</div>
+  <div class="footer-right">Scoring Matrix v1.0 &mdash; For internal review</div>
+</footer>
+
+<script>
+const overallData = {
+  subtitle: 'Scores reflect material shifts grounded in observable events this quarter. Recommended actions build resilience against risks that are already live — not predictions of what comes next.',
+  levels: [
+    {
+      score:'-3', cls:'neg3', name:'Significantly Deteriorating',
+      bullets:[
+        'Conditions have materially deteriorated — the preconditions for a crisis are present in the current environment',
+        'Organizations must act immediately to protect personnel and ensure operational resilience should conditions continue on this trajectory'
+      ],
+      domains:{
+        'Travel & Employee Safety':['Suspend all non-essential travel with immediate effect','Issue mandatory travel advisory to all employees in or travelling to the affected country','Recall non-critical staff from in-country assignments','Activate duty of care protocols and confirm location of all travelling personnel','Brief HR on implications for all employee assignments and relocations planned in the next 90 days','Suspend new travel approvals pending full security review'],
+        'Site & Office Security':['Elevate site security posture to highest readiness level','Conduct immediate threat assessment for all offices and facilities','Restrict site access to essential personnel only','Review and test emergency communication systems','Increase security personnel presence at all facilities','Ensure all in-country staff are briefed on emergency procedures and rally points'],
+        'Crisis & Evacuation':['Activate crisis management team and convene emergency briefing','Review and confirm readiness of evacuation plans for all in-country personnel','Pre-position resources and confirm evacuation routes are viable','Establish daily situation reporting cadence to senior leadership','Engage embassy and in-country security contacts for ground intelligence','Consider voluntary or mandatory departure of dependants and non-essential staff']
+      }
+    },
+    {
+      score:'-2', cls:'neg2', name:'Deteriorating',
+      bullets:[
+        'Conditions have worsened to a point where organizations relying on their prior operational posture may already be underprepared',
+        'Organizations should adjust their operational posture now — the cost of inaction increases as conditions deteriorate further'
+      ],
+      domains:{
+        'Travel & Employee Safety':['Restrict non-essential travel — require senior approval for all new travel requests','Issue heightened travel advisory with specific precautionary guidance','Brief all travelling employees on current conditions before departure','Review and update in-country emergency contacts and support arrangements','Confirm all travelling personnel are registered with duty of care provider','Assess and flag impact on planned assignments and relocations in the next 6 months'],
+        'Site & Office Security':['Review site security measures and identify gaps relative to the current risk environment','Increase frequency of security assessments and perimeter checks','Verify emergency response procedures are current and all staff are aware','Review and if necessary upgrade access controls','Establish closer liaison with local security providers and law enforcement contacts','Test emergency communication cascade with all in-country staff'],
+        'Crisis & Evacuation':['Review and update contingency and business continuity plans','Confirm evacuation plan is current and all personnel are briefed','Establish enhanced monitoring and reporting cadence on developments','Brief regional leadership on current situation and potential escalation scenarios','Pre-identify decision triggers that would prompt escalation to -3 protocols']
+      }
+    },
+    {
+      score:'-1', cls:'neg1', name:'Disruptive',
+      bullets:[
+        'Conditions have shifted meaningfully from baseline but do not yet demand immediate operational adjustment',
+        'Organizations should monitor actively and prepare early — this is the signal before the need for urgent action'
+      ],
+      domains:{
+        'Travel & Employee Safety':['Issue situational awareness update to all in-country and travelling personnel','Update travel briefings to include current conditions and guidance','Remind personnel to monitor local news and follow security protocols','Confirm duty of care tracking is active for all in-country personnel'],
+        'Site & Office Security':['Review current site security measures against updated risk context','Confirm local security team is aware of changing conditions','Check that emergency communication protocols are current and accessible'],
+        'Crisis & Evacuation':['Monitor situation with increased reporting frequency','Confirm business continuity plan is current and accessible','Flag as country to watch — ensure regional security focal point is actively tracking']
+      }
+    },
+    {
+      score:'0', cls:'zero', name:'No Change',
+      bullets:[
+        'Conditions are consistent with baseline — no material change observed this quarter',
+        'No operational adjustment required — maintain standard protocols appropriate to the country baseline'
+      ],
+      domains:{
+        'All Domains':['No operational adjustment required','Maintain standard monitoring cadence','Continue applying baseline risk protocols appropriate to the country']
+      }
+    },
+    {
+      score:'+1', cls:'pos1', name:'Stabilizing',
+      bullets:[
+        'Conditions are showing early signs of improvement from prior deterioration or a high-risk baseline — this score is not assigned to stable low-risk countries',
+        'Organizations should review existing restrictions for proportionality but should not yet lift them pending sustained confirmation'
+      ],
+      domains:{
+        'Travel & Employee Safety':['Review existing travel restrictions — assess whether they remain proportionate to current conditions','Update personnel that conditions are showing early signs of improvement — precautions remain','Do not yet lift elevated travel advisories — monitor for sustained improvement'],
+        'Site & Office Security':['Assess whether heightened security measures remain necessary','Begin gradual normalization of security posture where evidence clearly supports it'],
+        'Crisis & Evacuation':['Note positive trajectory in quarterly briefing to leadership','Begin reviewing whether business continuity posture requires adjustment']
+      }
+    },
+    {
+      score:'+2', cls:'pos2', name:'Improving',
+      bullets:[
+        'Conditions show a sustained positive trajectory sufficient to begin operational normalization',
+        'Organizations should begin active re-engagement planning and brief business teams on the improving environment'
+      ],
+      domains:{
+        'Travel & Employee Safety':['Review and consider lifting non-essential travel restrictions','Update travel advisories to reflect improved current conditions','Brief personnel that conditions have materially improved and normal protocols may resume','Resume planning for paused assignments or relocations'],
+        'Site & Office Security':['Normalise site security posture in line with improved conditions','Review whether elevated security measures can be stood down'],
+        'Crisis & Evacuation':['Downgrade monitoring frequency to standard cadence','Update business continuity plan to reflect improved risk context','Communicate positive trajectory to leadership and begin re-engagement planning']
+      }
+    },
+    {
+      score:'+3', cls:'pos3', name:'Significantly Improving',
+      bullets:[
+        'Conditions have improved substantially — this is a strong signal for full operational normalization and active market re-engagement',
+        'Organizations should restore standard protocols and ensure business leadership is briefed on the market opportunity'
+      ],
+      domains:{
+        'Travel & Employee Safety':['Lift non-essential travel restrictions and restore standard protocols','Revise country travel advisory to standard level','Proactively brief business teams on improved security environment'],
+        'Site & Office Security':['Restore standard site security operating procedures','Review whether current security investment levels remain appropriate'],
+        'Crisis & Evacuation':['Archive elevated crisis protocols — restore standard monitoring cadence','Communicate significant improvement to leadership and board as a market opportunity signal','Update annual risk narrative to reflect the sustained positive trajectory']
+      }
+    }
+  ]
+};
+const indicatorData = {
+  Security: {
+    indicators: {
+      'Civil Unrest': {
+        desc: 'Covers protests, riots, strikes, and organised civil disruption. Scoring addresses both the physical safety of personnel and movement and access restrictions.',
+        boundary: 'Regime Instability covers the stability of the governing system. Civil Unrest covers street-level disruption affecting personnel movement and safety. Interstate Tensions covers state-to-state relations.',
+        scores: [
+          {score:'-3',cls:'neg3',name:'Significantly Deteriorating',anchor:'Widespread, sustained, or violent unrest is actively disrupting normal life. Personnel safety cannot be assured. Movement is severely restricted.',threshold:'Assign -3 when: sustained violent clashes causing casualties; widespread rioting with near-total movement disruption; government curfews or states of emergency; or unrest spreading simultaneously across multiple cities. Preconditions for direct harm to personnel are present.',adj:'Choose -3 over -2 when personnel safety is actively at risk — not merely disrupted. Restricted movement without direct danger is -2.'},
+          {score:'-2',cls:'neg2',name:'Deteriorating',anchor:'Significant unrest causing meaningful disruption to movement and access. Incidents have resulted in injuries or property damage. Personnel face elevated risk.',threshold:'Assign -2 when: recurring protests escalating to violence; road blockages or transport disruption; clashes resulting in injuries; disruption to business operations; or significant increase in protest frequency vs prior quarter.',adj:'Choose -2 over -1 when unrest has produced injuries, property damage, or meaningful movement restrictions. Choose -2 over -3 when personnel are at elevated risk but not in direct danger.'},
+          {score:'-1',cls:'neg1',name:'Disruptive',anchor:'Protest or unrest activity has increased this quarter. Incidents are largely contained but represent a meaningful departure from baseline.',threshold:'Assign -1 when: notable increase in protest frequency vs prior quarter; isolated incidents of property damage or minor clashes; intermittent disruption to specific routes; or early signs of organised civil opposition. No direct threat to personnel.',adj:'Choose -1 over 0 when protest activity has meaningfully increased beyond normal for this country. Routine low-level protest in high-baseline countries is 0.'},
+          {score:'0',cls:'zero',name:'No Change',anchor:'Unrest levels are consistent with baseline. No material change in frequency, scale, or intensity of civil disruption this quarter.',threshold:'Assign 0 when protest activity is at or below historical baseline with no significant escalation and no disruption to movement beyond normal for this country.',adj:'Routine protest activity consistent with a country\'s established pattern is always 0 regardless of media coverage.'},
+          {score:'+1',cls:'pos1',name:'Stabilizing',anchor:'Unrest activity declining from a prior elevated level or persistently high baseline. Conditions improving but not yet confirmed as sustained.',threshold:'Assign +1 only where prior negative score was recorded or country carries High or Critical baseline. Evidence: reduction in protest frequency; fewer violent incidents; easing of movement restrictions. Do not assign to Low or Minimal baseline countries without prior deterioration.',adj:'Choose +1 over 0 only when there is clear observable decline from a previously elevated state.'},
+          {score:'+2',cls:'pos2',name:'Improving',anchor:'Sustained reduction in unrest from prior elevated levels. Movement and access conditions have materially improved. Incident frequency and severity consistently declining.',threshold:'Assign +2 where prior -1 or -2 was recorded, or for High/Critical baseline with clear sustained improvement. Evidence: consistent reduction across full quarter; minimal violent incidents; restoration of normal movement.',adj:'Choose +2 over +1 when improvement is sustained across the full quarter. One calm month following two volatile ones is +1.'},
+          {score:'+3',cls:'pos3',name:'Significantly Improving',anchor:'Substantial and sustained reduction in unrest from prior crisis or persistently high baseline. Movement and access fully restored.',threshold:'Assign +3 only where prior -2 or -3 was recorded, or Critical baseline with exceptional improvement. Evidence: near-complete cessation of significant unrest; full restoration of movement; no credible indicators of near-term recurrence.',adj:'+3 requires substantial transformation across the full quarter with no meaningful relapses. +3 should be rare.'}
+        ]
+      },
+      'Political Violence': {
+        desc: 'Covers conflict, war, terrorism, insurgency, and state-sponsored violence. All forms treated with the same operational framework — the concern is threat to personnel safety regardless of actor or motive.',
+        boundary: 'Political Violence covers armed violence by state or non-state actors. Civil Unrest covers protest-based disruption. Regime Instability covers institutional political breakdown.',
+        scores: [
+          {score:'-3',cls:'neg3',name:'Significantly Deteriorating',anchor:'Active, widespread, or high-intensity political violence is ongoing. Personnel face direct or credible threat to physical safety. Normal operations are incompatible with current conditions.',threshold:'Assign -3 when: active armed conflict near operations; terrorist attacks causing mass casualties; insurgent activity threatening populated areas; state-sponsored violence against civilians; or dramatic escalation in frequency or lethality vs prior quarter.',adj:'Choose -3 over -2 when violence is proximate to operational areas or lethality makes safe operations impossible. Significant but geographically distant violence may be -2.'},
+          {score:'-2',cls:'neg2',name:'Deteriorating',anchor:'Significant increase in political violence incidents. Attacks or clashes in or near operational areas. Threat to personnel elevated and prior operational posture no longer adequate.',threshold:'Assign -2 when: significant increase in terrorist or insurgent incidents; armed clashes proximate to operations; attacks on infrastructure or civilian targets; notable rise in fatalities; or credible threat intelligence against foreign nationals or business interests.',adj:'Choose -2 over -1 when violence has produced casualties or directly affected operational areas. National-level uptick without proximity is -1.'},
+          {score:'-1',cls:'neg1',name:'Disruptive',anchor:'Increase in political violence incidents observed. Not yet proximate to operational areas but represents a meaningful shift from baseline.',threshold:'Assign -1 when: notable uptick in terrorist or insurgent activity nationally; isolated attacks not proximate to operations; increased security force or counter-terrorism activity; or early indicators of escalating violence not yet reaching operational areas.',adj:'Choose -1 over 0 when there is a clear measurable increase beyond normal for this country. National uptick without operational proximity is -1, not -2.'},
+          {score:'0',cls:'zero',name:'No Change',anchor:'Political violence levels consistent with baseline. No material change in frequency, lethality, or geographic scope of incidents this quarter.',threshold:'Assign 0 when incidents are at or below historical baseline with no significant change in threat actor activity, geographic spread, or attack severity.',adj:'For high-baseline countries, ongoing low-level violence consistent with established pattern is always 0.'},
+          {score:'+1',cls:'pos1',name:'Stabilizing',anchor:'Observable reduction in political violence from prior elevated levels or persistently high baseline. Incident frequency or lethality declining. Residual risk remains.',threshold:'Assign +1 only where prior negative score was recorded or High/Critical baseline. Evidence: measurable reduction in frequency or severity; ceasefire producing observable results; reduced insurgent or terrorist activity vs prior quarter.',adj:'A single period of reduced violence is +1. Sustained reduction across full quarter with no significant relapses is +2.'},
+          {score:'+2',cls:'pos2',name:'Improving',anchor:'Sustained and meaningful reduction in political violence from prior elevated levels. Threat to personnel has materially decreased.',threshold:'Assign +2 where prior -1 or -2 was recorded, or High/Critical baseline with clear sustained improvement. Evidence: consistent reduction across the quarter; reduction in lethality; major threat actors withdrawn or defeated; sustained ceasefire.',adj:'Choose +2 over +1 when improvement is observable across the whole quarter with no significant relapses.'},
+          {score:'+3',cls:'pos3',name:'Significantly Improving',anchor:'Substantial and sustained reduction from prior crisis or persistently high baseline. Security environment transformed materially.',threshold:'Assign +3 only where prior -2 or -3 was recorded, or Critical baseline with exceptional improvement. Evidence: near-complete cessation of violence; durable peace settlement; threat actors substantially neutralised; no credible near-term resurgence.',adj:'+3 requires structural change — not just a quiet quarter. A temporary lull is +1 or +2.'}
+        ]
+      },
+      'Violent Crime': {
+        desc: 'Covers organised crime, kidnapping, armed robbery, gang violence, and other violent criminal activity. Addresses both targeted crime against business personnel and assets, and the general crime environment affecting all staff.',
+        boundary: 'Violent Crime covers criminal violence regardless of political motive. Political Violence covers violence with political objectives. Rule of Law covers state conduct and institutional integrity.',
+        scores: [
+          {score:'-3',cls:'neg3',name:'Significantly Deteriorating',anchor:'Violent crime has escalated to a level where personnel face credible and direct risk in daily movements and at business premises.',threshold:'Assign -3 when: significant wave of kidnappings targeting foreign nationals or executives; organised criminal attacks on premises or supply chains; near-total breakdown of law enforcement in operational areas; mass casualty criminal violence in areas used by personnel; or credible specific threat intelligence against the organisation.',adj:'Choose -3 over -2 when criminal threat is direct, specific, and proximate — especially kidnapping or targeted attacks. Severe general crime without specific business targeting may be -2.'},
+          {score:'-2',cls:'neg2',name:'Deteriorating',anchor:'Significant increase in violent crime this quarter. Incidents affecting foreign nationals, business premises, or general population in operational areas increased materially.',threshold:'Assign -2 when: notable rise in kidnappings, armed robberies, or carjackings in operational areas; organised crime expanding into areas affecting operations; significant increase in violent crime rates vs prior quarter; or visibly degraded law enforcement capacity.',adj:'Choose -2 over -1 when crime has directly affected the business operating environment. Rising national statistics without operational impact is -1.'},
+          {score:'-1',cls:'neg1',name:'Disruptive',anchor:'Increase in violent crime observed representing a meaningful departure from baseline. Incidents have not directly affected personnel but changed crime environment warrants heightened awareness.',threshold:'Assign -1 when: noticeable uptick in violent crime nationally or in operational areas; isolated incidents involving foreign nationals or business premises; emerging organised crime in areas of operation; or early indicators of deteriorating law enforcement capacity.',adj:'Choose -1 over 0 when crime levels have measurably increased beyond normal for this country.'},
+          {score:'0',cls:'zero',name:'No Change',anchor:'Violent crime levels consistent with baseline. No material change in frequency, severity, or targeting of criminal activity this quarter.',threshold:'Assign 0 when crime is at or below historical baseline with no significant change in organised crime activity, no new targeting of foreign nationals, and no meaningful change in law enforcement capacity.',adj:'For high-crime baseline countries, persistent elevated crime consistent with established pattern is always 0.'},
+          {score:'+1',cls:'pos1',name:'Stabilizing',anchor:'Observable evidence shows violent crime declining from prior elevated levels or persistently high baseline.',threshold:'Assign +1 only where prior negative score was recorded or High/Critical baseline. Evidence: measurable reduction in violent crime incidents; improved law enforcement response; reduction in organised crime activity vs prior quarter.',adj:'A reduction in crime incidents is +1. Sustained reduction across full quarter with improved law enforcement capacity is +2.'},
+          {score:'+2',cls:'pos2',name:'Improving',anchor:'Sustained and meaningful reduction in violent crime from prior elevated levels. Risk to personnel and business assets has materially decreased.',threshold:'Assign +2 where prior -1 or -2 was recorded, or High/Critical baseline with clear sustained improvement. Evidence: consistent reduction across the full quarter; improved law enforcement; reduction in organised crime operations.',adj:'Choose +2 over +1 when improvement is consistent across the full quarter.'},
+          {score:'+3',cls:'pos3',name:'Significantly Improving',anchor:'Substantial and sustained reduction from prior crisis or persistently high baseline. Security environment for personnel and business assets transformed materially.',threshold:'Assign +3 only where prior -2 or -3 was recorded, or Critical baseline with exceptional improvement. Evidence: dramatic sustained reduction; effective dismantling of major criminal organisations; strong law enforcement; no credible near-term resurgence.',adj:'+3 requires structural change in the crime environment — not just a quiet quarter.'}
+        ]
+      }
+    }
+  },
+  Political: {
+    indicators: {
+      'Regime Instability': {
+        desc: 'Covers both acute instability events — coups, government collapse — and structural deterioration such as political polarisation and erosion of institutional legitimacy.',
+        boundary: 'Regime Instability scores the stability and legitimacy of the governing system. It does not cover interstate relations (Interstate Tensions) or the conduct of law enforcement and judiciary (Rule of Law). A change of government through a scheduled election is not instability unless the process is contested.',
+        scores: [
+          {score:'-3',cls:'neg3',name:'Significantly Deteriorating',anchor:'A fundamental breakdown in governing authority has occurred or is actively unfolding. The legitimacy of the state is in acute crisis.',threshold:'Assign -3 when: a coup or coup attempt; declaration of martial law or suspension of constitution; government collapse with no viable successor; mass resignation triggering constitutional crisis; armed forces actively intervening in politics; or complete breakdown of the electoral process.',adj:'Choose -3 over -2 when the governing system itself has been disrupted or suspended. A deeply contested election is -2. A coup or constitutional suspension is -3.'},
+          {score:'-2',cls:'neg2',name:'Deteriorating',anchor:'Significant instability events have occurred materially undermining the functioning or legitimacy of the governing system.',threshold:'Assign -2 when: failed coup revealing deep institutional divisions; mass cabinet resignations short of full collapse; deeply contested election or significant electoral irregularities; parliament suspended or severely curtailed; significant protests challenging government legitimacy; or rapid acceleration of democratic backsliding in a single quarter.',adj:'Choose -2 over -1 when instability events are acute and directly threaten government continuity. Choose -2 over -3 when severely stressed but not broken down.'},
+          {score:'-1',cls:'neg1',name:'Disruptive',anchor:'Observable signs of increasing political instability. Government functioning but under strain. Structural deterioration progressing at a pace representing a meaningful departure from prior quarter.',threshold:'Assign -1 when: significant polarisation events — coalition breakdown, parliamentary deadlock; credible coup rumours surfacing publicly; notable erosion of institutional norms; contentious but not yet concluded electoral process; or measurable increase in anti-government sentiment.',adj:'Choose -1 over 0 when political conditions have meaningfully shifted from prior quarter baseline. Routine political opposition and parliamentary debate is 0.'},
+          {score:'0',cls:'zero',name:'No Change',anchor:'Political stability consistent with baseline. Government functioning normally within established framework.',threshold:'Assign 0 when government functions normally with no significant challenges to legitimacy, polarisation is at or below baseline, and no acute instability events have occurred.',adj:'Routine political activity — elections proceeding normally, parliamentary debates, normal cabinet reshuffles — is always 0.'},
+          {score:'+1',cls:'pos1',name:'Stabilizing',anchor:'Observable signs of improving political stability from prior elevated instability or persistently high-risk baseline.',threshold:'Assign +1 only where prior negative score was recorded or High/Critical baseline. Evidence: resolution of an acute instability event; reduction in political polarisation; or early signs of institutional recovery after backsliding.',adj:'Choose +1 over 0 only when there is clear observable improvement from a previously elevated instability state.'},
+          {score:'+2',cls:'pos2',name:'Improving',anchor:'Sustained improvement in political stability from prior elevated instability. Governing institutions functioning more effectively. Political legitimacy meaningfully restored.',threshold:'Assign +2 where prior -1 or -2 was recorded, or High/Critical baseline with clear sustained improvement. Evidence: stable government consolidation after crisis; meaningful reduction in polarisation; successful accepted electoral process; or sustained strengthening of institutional independence.',adj:'Choose +2 over +1 when improvement is sustained across full quarter with no significant relapses.'},
+          {score:'+3',cls:'pos3',name:'Significantly Improving',anchor:'Substantial and sustained improvement from prior crisis or persistently weak baseline. Governing institutions materially strengthened. Political legitimacy robustly restored.',threshold:'Assign +3 only where prior -2 or -3 was recorded, or Critical baseline with exceptional improvement. Evidence: full resolution of prior constitutional crisis with stable successor; significant democratic consolidation; restoration of institutional independence.',adj:'+3 requires structural change — not just return to prior unstable normal.'}
+        ]
+      },
+      'Interstate Tensions': {
+        desc: 'Covers the overall interstate tension environment — bilateral and multilateral tensions simultaneously. Scored based on the aggregate tension picture.',
+        boundary: 'Interstate Tensions scores diplomatic and political relations between states. It does not cover internal political instability (Regime Instability) or domestic law enforcement conduct (Rule of Law).',
+        scores: [
+          {score:'-3',cls:'neg3',name:'Significantly Deteriorating',anchor:'Country involved in acute interstate confrontation posing direct threat to operational stability. Diplomatic relations broken down to a point where personnel, assets, or business continuity face direct risk.',threshold:'Assign -3 when: full severance of diplomatic relations with a major partner; closure of embassies affecting personnel safety or consular access; broad sanctions with direct operational impact; active military confrontation or credible imminent threat of armed conflict; or expulsion of large numbers of diplomats triggering reciprocal escalation.',adj:'Choose -3 over -2 when interstate tensions have escalated to direct operational impact.'},
+          {score:'-2',cls:'neg2',name:'Deteriorating',anchor:'Significant escalation in interstate tensions. Diplomatic incidents frequent and serious. Bilateral or multilateral relationship environment materially worsened.',threshold:'Assign -2 when: expulsion of ambassadors or senior diplomats; imposition of targeted sanctions or travel bans; public threats between heads of state; significant deterioration in a key bilateral relationship; suspension of diplomatic engagement; or marked increase in military posturing not yet at active conflict.',adj:'Choose -2 over -1 when diplomatic incidents are serious and formal. Choose -2 over -3 when severe but no direct operational impact yet.'},
+          {score:'-1',cls:'neg1',name:'Disruptive',anchor:'Increase in interstate tensions observed. Diplomatic friction escalated but formal incidents remain limited.',threshold:'Assign -1 when: notable deterioration in a key bilateral relationship — trade disputes, summoning of ambassadors; increased hostile rhetoric between governments; new territorial disputes emerging; or meaningful increase in military exercises not constituting a direct threat.',adj:'Choose -1 over 0 when interstate relations have measurably worsened from prior quarter. Longstanding disputes at a stable level of friction are 0.'},
+          {score:'0',cls:'zero',name:'No Change',anchor:'Interstate tensions consistent with baseline. No material change in the diplomatic relationship environment this quarter.',threshold:'Assign 0 when diplomatic relations are functioning normally within established patterns, no new formal incidents have occurred, and interstate tensions are at or below baseline.',adj:'Countries with chronic interstate tensions score 0 when those tensions are stable and unchanged from baseline.'},
+          {score:'+1',cls:'pos1',name:'Stabilizing',anchor:'Observable signs of easing interstate tensions from prior period of elevated friction.',threshold:'Assign +1 only where prior negative score was recorded or High/Critical baseline. Evidence: resumption of diplomatic dialogue; withdrawal of threatening rhetoric; early-stage negotiations; or reduction in military posturing vs prior quarter.',adj:'Choose +1 over 0 only when there is clear observable improvement from a previously elevated tension state.'},
+          {score:'+2',cls:'pos2',name:'Improving',anchor:'Sustained improvement in interstate tension environment from prior elevated friction. Diplomatic relations recovering meaningfully.',threshold:'Assign +2 where prior -1 or -2 was recorded, or High/Critical baseline with clear sustained improvement. Evidence: formal restoration of diplomatic relations; lifting of targeted sanctions; resolution of a specific interstate dispute; or sustained de-escalation in military posturing.',adj:'Choose +2 over +1 when de-escalation is formal and sustained — not just a pause in hostile rhetoric.'},
+          {score:'+3',cls:'pos3',name:'Significantly Improving',anchor:'Substantial and sustained improvement from prior crisis or persistently high baseline. Diplomatic relations materially restored or transformed.',threshold:'Assign +3 only where prior -2 or -3 was recorded, or Critical baseline with exceptional improvement. Evidence: full restoration of diplomatic relations after severance; lifting of broad sanctions; resolution of a major territorial dispute; or durable peace agreement.',adj:'+3 requires structural transformation — not just reduced friction.'}
+        ]
+      },
+      'Rule of Law': {
+        desc: 'Covers the integrity of state institutions — judiciary independence, fairness of legal processes, corruption, and arbitrary state action. Does not cover specific compliance or regulatory enforcement against businesses.',
+        boundary: 'Rule of Law covers state conduct and institutional integrity. It does not cover regulatory compliance frameworks (Regulatory), law enforcement conduct related to crime (Violent Crime), or political targeting where this overlaps with Regime Instability.',
+        scores: [
+          {score:'-3',cls:'neg3',name:'Significantly Deteriorating',anchor:'Fundamental breakdown in rule of law. State institutions actively weaponised against individuals and organisations. Judiciary has lost meaningful independence.',threshold:'Assign -3 when: wholesale dismantling of judicial independence; widespread arbitrary detention of political opponents, journalists, or business figures; state seizure of private assets without legal process; institutionalised corruption making normal operations impossible; or systematic use of state institutions to target foreign nationals.',adj:'Choose -3 over -2 when rule of law has collapsed to the point where institutional protection can no longer be assumed.'},
+          {score:'-2',cls:'neg2',name:'Deteriorating',anchor:'Significant deterioration this quarter. Observable attacks on judicial independence, meaningful increase in arbitrary state action, or major corruption event materially weakening institutional integrity.',threshold:'Assign -2 when: removal or politically motivated prosecution of senior judges; arbitrary detention of prominent individuals without credible legal basis; major corruption scandal compromising institutional function; significant new restrictions on legal representation or due process; or notable increase in politically motivated asset freezes.',adj:'Choose -2 over -1 when deterioration is acute and involves specific high-profile events. Choose -2 over -3 when severely compromised but institutions have not entirely collapsed.'},
+          {score:'-1',cls:'neg1',name:'Disruptive',anchor:'Observable signs of rule of law deterioration. Institutional integrity under pressure. Individual incidents of arbitrary state action or corruption representing a meaningful departure from prior quarter.',threshold:'Assign -1 when: credible reports of judicial interference in notable cases; isolated incidents of arbitrary detention or state harassment; a significant corruption case signalling underlying rot; new legal restrictions curtailing civil rights; or measurable deterioration in press freedom.',adj:'Choose -1 over 0 when rule of law has observably worsened from prior quarter baseline. Chronic institutional weakness consistent with established baseline is 0.'},
+          {score:'0',cls:'zero',name:'No Change',anchor:'Rule of law conditions consistent with baseline. No material change in judicial independence, corruption levels, or pattern of state conduct this quarter.',threshold:'Assign 0 when institutional conduct is consistent with established patterns — no significant new events, no measurable change in corruption levels, no notable new arbitrary state actions beyond what is normal for this baseline.',adj:'For high-corruption countries, chronic conditions consistent with established baseline are always 0.'},
+          {score:'+1',cls:'pos1',name:'Stabilizing',anchor:'Observable signs of improving rule of law from prior deterioration or persistently weak baseline.',threshold:'Assign +1 only where prior negative score was recorded or High/Critical baseline. Evidence: reinstatement of targeted judicial officials; release of arbitrarily detained individuals; early-stage anti-corruption measures; or credible signals of institutional reform.',adj:'Choose +1 over 0 only when there is clear observable improvement from a previously deteriorated state.'},
+          {score:'+2',cls:'pos2',name:'Improving',anchor:'Sustained improvement in rule of law from prior deterioration. Judicial independence recovering. Anti-corruption measures producing observable results.',threshold:'Assign +2 where prior -1 or -2 was recorded, or High/Critical baseline with clear sustained improvement. Evidence: consistent reduction in arbitrary state actions; successful prosecution of senior corruption cases; measurable improvement in judicial independence; or sustained strengthening of civil society and press freedom.',adj:'Choose +2 over +1 when improvement is sustained across full quarter and reflects systemic rather than isolated changes.'},
+          {score:'+3',cls:'pos3',name:'Significantly Improving',anchor:'Substantial and sustained improvement from prior crisis or persistently weak baseline. Institutional integrity materially restored.',threshold:'Assign +3 only where prior -2 or -3 was recorded, or Critical baseline with exceptional improvement. Evidence: comprehensive judicial reform; systematic anti-corruption with proven track record; full restoration of civil and legal rights; no credible indicators of near-term reversal.',adj:'+3 requires structural transformation — not just improved conduct within a still-weak system.'}
+        ]
+      }
+    }
+  },
+  Health: {
+    indicators: {
+      'Infectious Diseases': {
+        desc: 'Covers major disease outbreaks. Scoring addresses both the severity and scale of the outbreak and the government\'s capacity to respond effectively.',
+        boundary: 'Infectious Diseases scores active outbreak events and government response capacity. It does not score the structural state of healthcare facilities or workforce (Healthcare Infrastructure).',
+        scores: [
+          {score:'-3',cls:'neg3',name:'Significantly Deteriorating',anchor:'Major outbreak actively spreading with high case counts or lethality. Government response capacity overwhelmed or absent.',threshold:'Assign -3 when: PHEIC or national emergency declared; rapidly spreading outbreak causing significant mortality with no effective containment; complete collapse of disease surveillance or response; or high-consequence pathogen with confirmed in-country transmission and no effective response.',adj:'Choose -3 over -2 when outbreak is severe AND government response has demonstrably failed. Severe outbreak with credible response is -2.'},
+          {score:'-2',cls:'neg2',name:'Deteriorating',anchor:'Significant outbreak with meaningful case counts and deaths. Government response active but strained or inadequate.',threshold:'Assign -2 when: WHO DON notice or CDC Level 2 alert; notable outbreak with significant morbidity or mortality and struggling response; rapid geographic spread within the country; or healthcare system showing early strain from outbreak pressure.',adj:'Choose -2 over -1 when outbreak is producing significant casualties or geographic spread.'},
+          {score:'-1',cls:'neg1',name:'Disruptive',anchor:'Outbreak identified and reported this quarter. Case counts limited and government response activated.',threshold:'Assign -1 when: WHO DON notice or CDC Level 1 alert; localised outbreak with limited cases and active response; early-stage spread of known disease beyond normal baseline; or new disease event being monitored.',adj:'Choose -1 over 0 when a formal outbreak notice has been issued. A formally declared outbreak, however small, is minimum -1.'},
+          {score:'0',cls:'zero',name:'No Change',anchor:'No significant outbreak activity beyond baseline seasonal norms. Disease surveillance and government response systems functioning normally.',threshold:'Assign 0 when no outbreak notices issued, disease activity consistent with seasonal baseline, and government health response systems functioning normally.',adj:'Endemic diseases at normal baseline level are always 0. Only a formal outbreak event or measurable spike above seasonal baseline warrants a non-zero score.'},
+          {score:'+1',cls:'pos1',name:'Stabilizing',anchor:'Active outbreak showing early signs of containment. Case counts stabilising or declining.',threshold:'Assign +1 only where prior negative score was recorded. Evidence: plateauing or early decline in new cases; containment measures taking effect; WHO or CDC downgrading alert levels.',adj:'Choose +1 over 0 only when there is an active prior outbreak now showing observable containment.'},
+          {score:'+2',cls:'pos2',name:'Improving',anchor:'Prior outbreak substantially contained. Case counts declined meaningfully. Government response effective.',threshold:'Assign +2 where prior -1 or -2 was recorded. Evidence: significant sustained decline in new cases; withdrawal or downgrading of formal outbreak notices; effective containment confirmed.',adj:'Choose +2 over +1 when containment is confirmed and sustained.'},
+          {score:'+3',cls:'pos3',name:'Significantly Improving',anchor:'Prior major outbreak effectively resolved. Disease contained or eliminated.',threshold:'Assign +3 only where prior -2 or -3 was recorded. Evidence: formal end-of-outbreak declaration; near-zero new cases sustained over the quarter; full withdrawal of alert notices.',adj:'+3 requires formal end-of-outbreak declaration — not just a quiet period.'}
+        ]
+      },
+      'Healthcare Infrastructure': {
+        desc: 'Covers the physical availability of healthcare infrastructure — hospitals, medical equipment, medicines, and healthcare workforce.',
+        boundary: 'Healthcare Infrastructure scores the structural state and capacity of the physical healthcare system. It does not score active disease outbreaks (Infectious Diseases). This indicator scores 0 in most quarters for most countries.',
+        scores: [
+          {score:'-3',cls:'neg3',name:'Significantly Deteriorating',anchor:'Healthcare infrastructure has collapsed or been severely degraded. System cannot deliver essential care.',threshold:'Assign -3 when: widespread destruction of healthcare facilities due to conflict or disaster; mass exodus of healthcare workforce; complete breakdown of medical supply chains; formal international humanitarian response for healthcare collapse.',adj:'Choose -3 over -2 when infrastructure collapse is widespread and systemic.'},
+          {score:'-2',cls:'neg2',name:'Deteriorating',anchor:'Significant deterioration in healthcare capacity this quarter. Major facilities damaged, closed, or severely under-resourced.',threshold:'Assign -2 when: closure or significant damage to major hospitals; critical shortages of essential medicines or equipment; significant healthcare workforce strike or departure; major disruption to medical supply chains.',adj:'Choose -2 over -1 when deterioration is acute and involves closure or severe degradation of major facilities.'},
+          {score:'-1',cls:'neg1',name:'Disruptive',anchor:'Observable signs of healthcare infrastructure deterioration. Capacity or quality has declined meaningfully from prior quarter but essential services remain available.',threshold:'Assign -1 when: partial closure or downgrading of facilities; notable staff shortages or strikes affecting service delivery; emerging supply shortages; or early indicators of infrastructure strain.',adj:'Choose -1 over 0 when infrastructure has observably declined from prior quarter baseline.'},
+          {score:'0',cls:'zero',name:'No Change',anchor:'Healthcare infrastructure consistent with baseline. No material change in facility availability, workforce capacity, or medical supply chains this quarter.',threshold:'Assign 0 when healthcare infrastructure is functioning at its established baseline — even if that baseline is weak. This indicator scores 0 in most quarters for most countries.',adj:'Healthcare infrastructure changes slowly. Do not score chronic weakness as deterioration unless an observable change has occurred this quarter.'},
+          {score:'+1',cls:'pos1',name:'Stabilizing',anchor:'Early signs of healthcare infrastructure recovery from prior deterioration.',threshold:'Assign +1 only where prior negative score was recorded or High/Critical baseline. Evidence: reopening of previously closed facilities; resolution of workforce strikes; restoration of critical medical supply chains.',adj:'Choose +1 over 0 only when there is observable recovery from a previously deteriorated state.'},
+          {score:'+2',cls:'pos2',name:'Improving',anchor:'Sustained improvement in healthcare capacity from prior deterioration. Facilities operational, workforce available, supply chains functioning.',threshold:'Assign +2 where prior -1 or -2 was recorded. Evidence: consistent reopening of major facilities; restoration of adequate workforce; reliable supply chains; measurable improvement in capacity indicators.',adj:'Choose +2 over +1 when recovery is sustained and comprehensive.'},
+          {score:'+3',cls:'pos3',name:'Significantly Improving',anchor:'Substantial recovery or transformation of healthcare infrastructure from prior crisis or persistently weak baseline.',threshold:'Assign +3 only where prior -2 or -3 was recorded. Evidence: comprehensive restoration after collapse; major new infrastructure investment; sustained full workforce availability; reliable supply chains across the full quarter.',adj:'+3 requires structural transformation — not just recovery to prior weak baseline.'}
+        ]
+      }
+    }
+  },
+  Economic: {
+    indicators: {
+      'Economic Decline': {
+        desc: 'Covers macroeconomic deterioration including hyperinflation, currency crisis, sovereign debt stress, mass unemployment, and GDP contraction. Primary focus on macroeconomic indicators, with spillover risk into Security and Political domains flagged where relevant.',
+        boundary: 'Economic Decline scores macroeconomic conditions and direct operational spillovers. It does not score power or energy supply (Energy Infrastructure), regulatory enforcement changes (Regulatory), or political instability directly (Regime Instability). When deterioration creates credible spillover risk into civil unrest or regime instability, note this as a cross-domain signal in the rationale.',
+        scores: [
+          {score:'-3',cls:'neg3',name:'Significantly Deteriorating',anchor:'Macroeconomic conditions have deteriorated to crisis level. Economic dysfunction directly affecting operational viability and daily life. Spillover into social unrest or political instability is occurring or is an immediate credible risk.',threshold:'Assign -3 when: hyperinflation rendering local currency near-worthless; sovereign debt default or imminent default; complete forex crisis; GDP contraction severe enough to cause widespread business closures and mass unemployment; IMF emergency programme activation; or basic essentials unaffordable or unavailable to a significant portion of the population. Flag cross-domain spillover risk in rationale.',adj:'Choose -3 over -2 when economic dysfunction has crossed into crisis. Severe recession with functioning institutions is -2. Default, hyperinflation, or forex crisis is -3.'},
+          {score:'-2',cls:'neg2',name:'Deteriorating',anchor:'Significant macroeconomic deterioration this quarter. Key indicators worsened materially. Economic environment creating meaningful operational challenges and elevated spillover risk.',threshold:'Assign -2 when: inflation rising sharply eroding purchasing power; currency depreciating rapidly (20%+ in the quarter); sovereign credit rating downgrade or negative watch; significant GDP contraction confirmed or forecast to worsen materially; youth unemployment rising sharply; or IMF programme conditions being missed. Note cross-domain spillover risk if conditions create credible Security or Political implications.',adj:'Choose -2 over -1 when multiple macroeconomic indicators have moved materially in the same direction.'},
+          {score:'-1',cls:'neg1',name:'Disruptive',anchor:'Observable macroeconomic deterioration. One or more key indicators have worsened meaningfully from prior quarter.',threshold:'Assign -1 when: sovereign credit rating downgrade or negative outlook revision; inflation increasing meaningfully above prior quarter; currency depreciating noticeably but not at crisis levels; GDP growth forecast revised materially downward; or unemployment rising in a way representing a meaningful departure from baseline.',adj:'Choose -1 over 0 when macroeconomic indicators have measurably worsened from prior quarter.'},
+          {score:'0',cls:'zero',name:'No Change',anchor:'Macroeconomic conditions consistent with baseline. No material change in key indicators this quarter.',threshold:'Assign 0 when macroeconomic indicators are within normal range for this country\'s baseline, IMF and World Bank forecasts are unchanged, and no significant economic events have occurred.',adj:'Countries with chronically weak economies score 0 when conditions are stable within their established range.'},
+          {score:'+1',cls:'pos1',name:'Stabilizing',anchor:'Early signs of macroeconomic stabilisation from prior deterioration or persistently weak baseline.',threshold:'Assign +1 only where prior negative score was recorded or High/Critical baseline. Evidence: inflation beginning to decline; currency stabilising; IMF programme milestones being met; or credit rating outlook revised from negative to stable.',adj:'Choose +1 over 0 only when there is observable improvement from a previously deteriorated macroeconomic state.'},
+          {score:'+2',cls:'pos2',name:'Improving',anchor:'Sustained macroeconomic improvement from prior deterioration. Multiple indicators recovering.',threshold:'Assign +2 where prior -1 or -2 was recorded, or High/Critical baseline with clear sustained improvement. Evidence: consistent decline in inflation across the quarter; currency stabilisation or appreciation; GDP growth recovering; sovereign credit rating upgrade or positive outlook.',adj:'Choose +2 over +1 when improvement is sustained across multiple indicators over the full quarter.'},
+          {score:'+3',cls:'pos3',name:'Significantly Improving',anchor:'Substantial and sustained macroeconomic recovery from prior crisis or persistently weak baseline.',threshold:'Assign +3 only where prior -2 or -3 was recorded. Evidence: resolution of prior debt or currency crisis; inflation returning to manageable levels; successful exit from IMF emergency programme; sovereign credit rating restored; broad-based recovery confirmed by multiple indicators.',adj:'+3 requires comprehensive multi-indicator recovery from a prior crisis.'}
+        ]
+      },
+      'Energy Infrastructure': {
+        desc: 'Covers the reliability of power supply and energy infrastructure affecting both business operations and civilian life.',
+        boundary: 'Energy Infrastructure scores power supply reliability and energy system stability. It does not score the broader macroeconomic causes of energy crisis (Economic Decline). When an energy crisis is primarily driven by macroeconomic conditions, note the cross-domain link in the rationale.',
+        scores: [
+          {score:'-3',cls:'neg3',name:'Significantly Deteriorating',anchor:'Power supply has collapsed or is severely unreliable. Extended outages affecting businesses and civilian life across large areas.',threshold:'Assign -3 when: nationwide or near-nationwide power outages lasting days or weeks; complete failure of the national grid with no credible near-term restoration plan; total fuel shortages preventing generator backup; energy infrastructure destroyed rendering the system non-operational; or formal declaration of energy emergency.',adj:'Choose -3 over -2 when power supply has collapsed systemically. Rolling blackouts of several hours daily are -2. Near-total loss of power supply is -3.'},
+          {score:'-2',cls:'neg2',name:'Deteriorating',anchor:'Significant deterioration in power supply reliability. Extended or frequent outages affecting businesses and civilian life. Operational continuity requires active mitigation.',threshold:'Assign -2 when: rolling blackouts of 6+ hours daily affecting major cities or operational areas; significant deterioration in grid stability vs prior quarter; major fuel shortages limiting generator availability; targeted attacks on energy infrastructure; or government-imposed load shedding materially affecting business operations.',adj:'Choose -2 over -1 when outages are extended and frequent enough to require active operational mitigation.'},
+          {score:'-1',cls:'neg1',name:'Disruptive',anchor:'Observable deterioration in power supply reliability. Outages have increased in frequency or duration from prior quarter baseline.',threshold:'Assign -1 when: meaningful increase in power outage frequency or duration vs prior quarter; emerging fuel supply constraints; new or increased load shedding programmes; or isolated damage to energy infrastructure creating localised disruption.',adj:'Choose -1 over 0 when power reliability has observably worsened from prior quarter baseline. Chronic unreliability consistent with established pattern is 0.'},
+          {score:'0',cls:'zero',name:'No Change',anchor:'Power supply and energy infrastructure consistent with baseline. No material change in reliability, outage frequency, or fuel availability this quarter.',threshold:'Assign 0 when energy supply is functioning at its established baseline for this country — even if that baseline includes some degree of unreliability.',adj:'Countries with chronic power instability score 0 when conditions are stable within their established range.'},
+          {score:'+1',cls:'pos1',name:'Stabilizing',anchor:'Early signs of improvement in power supply reliability from prior deterioration.',threshold:'Assign +1 only where prior negative score was recorded or High/Critical baseline. Evidence: reduction in outage frequency or duration vs prior quarter; partial restoration of damaged infrastructure; easing of fuel supply constraints.',adj:'Choose +1 over 0 only when there is observable improvement from a previously deteriorated energy state.'},
+          {score:'+2',cls:'pos2',name:'Improving',anchor:'Sustained improvement in power supply reliability from prior deterioration. Outages consistently declining across the quarter.',threshold:'Assign +2 where prior -1 or -2 was recorded. Evidence: consistent reduction in outage frequency and duration across the full quarter; significant infrastructure repair or new capacity; reliable fuel supply restored; and load shedding substantially reduced or eliminated.',adj:'Choose +2 over +1 when improvement is sustained across the full quarter.'},
+          {score:'+3',cls:'pos3',name:'Significantly Improving',anchor:'Substantial and sustained improvement from prior crisis or persistently unreliable baseline. Power supply materially restored or transformed.',threshold:'Assign +3 only where prior -2 or -3 was recorded. Evidence: comprehensive restoration of power supply after collapse; major new generation or grid capacity; fuel supply fully restored; no significant outages recorded across the full quarter.',adj:'+3 requires transformation of the energy environment — not just recovery to prior unreliable baseline.'}
+        ]
+      }
+    }
+  },
+  Regulatory: {
+    indicators: {
+      'Regulation': {
+        desc: 'Covers both changes to the regulatory framework — new laws, rules, licensing requirements — and changes in enforcement intensity — crackdowns, inspections, penalties.',
+        boundary: 'Regulation scores the business regulatory environment — compliance requirements and enforcement actions directed at organisations. It does not cover arbitrary state action against individuals (Rule of Law) or politically motivated targeting of businesses reflecting regime behaviour (Regime Instability). FATF grey or black list changes are a primary signal for this indicator.',
+        scores: [
+          {score:'-3',cls:'neg3',name:'Significantly Deteriorating',anchor:'Regulatory environment has deteriorated to a level directly threatening operational viability.',threshold:'Assign -3 when: FATF black list designation severely restricting financial transactions; sweeping new requirements with immediate effect and no transition period; mass enforcement actions targeting entire sectors or foreign businesses; introduction of laws fundamentally incompatible with international business operations; or regulatory environment so unpredictable that legal counsel cannot provide reliable compliance guidance.',adj:'Choose -3 over -2 when the regulatory environment has become incompatible with normal operations.'},
+          {score:'-2',cls:'neg2',name:'Deteriorating',anchor:'Significant regulatory deterioration this quarter. New framework changes or material increase in enforcement intensity have created meaningful compliance burden or legal exposure.',threshold:'Assign -2 when: FATF grey list addition triggering enhanced due diligence; significant new legislation materially affecting business operations; notable crackdown on a sector where the organisation operates; introduction of significant new tax or reporting obligations; or material increase in enforcement actions against foreign businesses.',adj:'Choose -2 over -1 when regulatory changes directly and materially affect operations.'},
+          {score:'-1',cls:'neg1',name:'Disruptive',anchor:'Observable signs of regulatory environment deterioration. New requirements or enforcement signals have emerged representing a meaningful departure from prior conditions.',threshold:'Assign -1 when: new regulatory proposals under consultation that would materially affect operations if enacted; increase in inspection frequency as an early enforcement signal; new reporting requirements adding compliance burden; or early indicators of a crackdown that have not yet produced formal enforcement actions.',adj:'Choose -1 over 0 when regulatory conditions have observably shifted from prior quarter.'},
+          {score:'0',cls:'zero',name:'No Change',anchor:'Regulatory environment consistent with baseline. No material change in framework requirements or enforcement intensity this quarter.',threshold:'Assign 0 when the regulatory framework is unchanged, enforcement activity is at its normal baseline level, no significant new legislation or enforcement actions have occurred, and FATF status is unchanged.',adj:'Countries with chronically complex regulatory environments score 0 when conditions are stable within their established range.'},
+          {score:'+1',cls:'pos1',name:'Stabilizing',anchor:'Early signs of regulatory environment improvement from prior deterioration or persistently burdensome baseline.',threshold:'Assign +1 only where prior negative score was recorded or High/Critical baseline. Evidence: FATF grey list removal process underway with credible progress; relaxation of a specific enforcement crackdown; regulatory reform proposals under active consideration.',adj:'Choose +1 over 0 only when there is observable improvement from a previously deteriorated regulatory state.'},
+          {score:'+2',cls:'pos2',name:'Improving',anchor:'Sustained improvement in regulatory environment from prior deterioration. Framework simplification or reduced enforcement intensity confirmed.',threshold:'Assign +2 where prior -1 or -2 was recorded, or High/Critical baseline with clear sustained improvement. Evidence: FATF grey list removal confirmed; repeal or material relaxation of burdensome requirements; sustained reduction in enforcement actions; or regulatory reform enacted producing measurably simpler compliance environment.',adj:'Choose +2 over +1 when improvement is confirmed and enacted — not merely signalled or proposed.'},
+          {score:'+3',cls:'pos3',name:'Significantly Improving',anchor:'Substantial and sustained improvement from prior crisis or persistently burdensome baseline. Compliance environment materially transformed.',threshold:'Assign +3 only where prior -2 or -3 was recorded. Evidence: FATF black list removal confirmed; comprehensive regulatory reform producing fundamentally more predictable compliance environment; systematic reduction in enforcement arbitrariness.',adj:'+3 requires structural transformation — not just relief from a specific crackdown.'}
+        ]
+      }
+    }
+  },
+  Environmental: {
+    indicators: {
+      'Natural Disasters': {
+        desc: 'Covers acute natural disaster events — earthquakes, tsunamis, tropical cyclones, wildfires, volcanic eruptions, and floods. Scoring focuses on actual impact contextualised against the country\'s preparedness and response capacity.',
+        boundary: 'Natural Disasters scores acute disaster events and their operational impact, contextualised by country preparedness. It does not score slow-onset climatic trends (Climatic Stress) or the economic consequences of disasters (Economic Decline). Seasonal disaster risk is part of the country baseline and scores 0 unless a specific event has exceeded normal seasonal parameters.',
+        scores: [
+          {score:'-3',cls:'neg3',name:'Significantly Deteriorating',anchor:'Major disaster event causing severe casualties, widespread infrastructure destruction, or large-scale displacement. Scale has overwhelmed the country\'s response capacity.',threshold:'Assign -3 when: disaster causing mass casualties relative to country baseline and preparedness; widespread destruction of critical infrastructure; large-scale population displacement; formal international humanitarian response activated; or a disaster exceptional even by the standards of a high-exposure country. Context is critical: a magnitude 6 earthquake in the Philippines with significant casualties may be -3; the same earthquake in Japan with minimal casualties may be -1 or -2.',adj:'Choose -3 over -2 when the disaster has produced mass casualties, widespread infrastructure destruction, or overwhelmed response capacity.'},
+          {score:'-2',cls:'neg2',name:'Deteriorating',anchor:'Significant disaster event causing meaningful casualties, infrastructure damage, or operational disruption. Government response active but strained.',threshold:'Assign -2 when: disaster causing notable casualties with active but strained government response; significant disruption to transport, utilities, or supply chains; a disaster of significant scale in a country with moderate preparedness exceeding normal seasonal parameters; or multiple moderate events in the same quarter. Apply baseline context: a typhoon causing significant damage in the Philippines may be -2 where the same damage in Taiwan would be -3.',adj:'Choose -2 over -1 when disaster has produced significant casualties or material infrastructure disruption.'},
+          {score:'-1',cls:'neg1',name:'Disruptive',anchor:'Disaster event causing limited casualties and contained infrastructure disruption. Managed within normal response capacity.',threshold:'Assign -1 when: disaster event causing limited casualties and localised damage; temporary disruption to specific routes or utilities being resolved; seasonal disaster within normal parameters causing meaningful but contained disruption.',adj:'Choose -1 over 0 when a discrete disaster event occurred and produced observable disruption. Seasonal risk without a specific event occurring is 0.'},
+          {score:'0',cls:'zero',name:'No Change',anchor:'No significant disaster event has occurred this quarter beyond what is consistent with the country\'s seasonal baseline.',threshold:'Assign 0 when no disaster event has occurred, or only minor events consistent with the country\'s seasonal baseline with negligible impact. Seasonal risk is baseline context and scores 0 absent a specific notable event.',adj:'The presence of seasonal disaster risk is always 0. Do not score risk; score events.'},
+          {score:'+1',cls:'pos1',name:'Stabilizing',anchor:'Recovery from a prior disaster event is underway. Essential services being restored.',threshold:'Assign +1 only where a prior negative score was recorded. Evidence: active and progressing restoration of infrastructure damaged in prior quarter; population returning to affected areas; resumption of normal business operations.',adj:'Choose +1 over 0 only when there is active observable recovery from a prior disaster event.'},
+          {score:'+2',cls:'pos2',name:'Improving',anchor:'Substantial recovery from a prior significant disaster. Infrastructure largely restored. Operating environment returned close to pre-disaster baseline.',threshold:'Assign +2 where a prior -2 or -3 was recorded. Evidence: substantial completion of infrastructure restoration; population largely returned and economic activity resuming; utilities and transport at or near pre-disaster levels.',adj:'Choose +2 over +1 when recovery is substantial and sustained.'},
+          {score:'+3',cls:'pos3',name:'Significantly Improving',anchor:'Full recovery from a prior major disaster. Operating environment fully restored or materially improved through reconstruction.',threshold:'Assign +3 only where a prior -3 was recorded. Evidence: comprehensive infrastructure restoration confirmed; full resumption of normal operations; population fully returned.',adj:'+3 is rare and requires full documented recovery from a -3 level event.'}
+        ]
+      },
+      'Climatic Stress': {
+        desc: 'Covers both acute climatic events — severe heatwaves, extreme temperatures, prolonged drought — and slow-onset structural stress — rising sea levels, multi-year drought trends, long-term temperature anomalies.',
+        boundary: 'Climatic Stress scores the climatic environment and its operational impact. It does not score acute natural disaster events — cyclones, earthquakes, floods — which are captured under Natural Disasters, though it may overlap with flood risk where driven by sea level rise rather than a discrete storm event.',
+        scores: [
+          {score:'-3',cls:'neg3',name:'Significantly Deteriorating',anchor:'Severe and sustained climatic conditions have directly affected operational viability and civilian life. Slow-onset stress has reached a threshold where physical operational impacts are materialising.',threshold:'Assign -3 when: record-breaking heatwave causing mass casualties, mass displacement, or collapse of essential services; prolonged drought reaching crisis level; sea level or flooding causing permanent loss of operational infrastructure; formal climate emergency declaration; or slow-onset stress reaching a threshold this quarter producing observable physical disruption.',adj:'Choose -3 over -2 when climatic conditions have produced catastrophic or infrastructure-threatening outcomes.'},
+          {score:'-2',cls:'neg2',name:'Deteriorating',anchor:'Significant climatic stress events this quarter causing meaningful operational disruption. Acute events have exceeded normal seasonal parameters, or slow-onset trends have measurably accelerated.',threshold:'Assign -2 when: severe heatwave causing significant health impacts, energy demand spikes, and notable operational disruption; extended drought meaningfully affecting water supply; measurable acceleration in slow-onset indicators representing a material departure from prior quarter trend; or climatic conditions causing significant disruption exceeding seasonal norms.',adj:'Choose -2 over -1 when climatic events have produced significant and observable operational disruption.'},
+          {score:'-1',cls:'neg1',name:'Disruptive',anchor:'Observable climatic stress events representing a meaningful departure from baseline seasonal conditions. Impact limited but climatic environment has worsened noticeably.',threshold:'Assign -1 when: above-normal temperatures or prolonged heat causing limited but observable operational and health impacts; seasonal drought more severe than normal baseline; new climatic data indicating measurable worsening of slow-onset indicators; or early-stage impacts from rising sea levels on coastal infrastructure.',adj:'Choose -1 over 0 when climatic conditions have observably exceeded normal seasonal parameters for this country.'},
+          {score:'0',cls:'zero',name:'No Change',anchor:'Climatic conditions consistent with seasonal and baseline norms. No material departure from expected conditions this quarter.',threshold:'Assign 0 when temperatures, precipitation, and other indicators are within normal seasonal ranges; no exceptional climatic events have occurred; and slow-onset indicators are stable within established trend without meaningful acceleration.',adj:'Background climatic risk and long-term trends are part of the country baseline — they score 0 unless a specific measurable change has occurred this quarter.'},
+          {score:'+1',cls:'pos1',name:'Stabilizing',anchor:'Climatic conditions showing early signs of improvement from prior period of acute stress.',threshold:'Assign +1 only where prior negative score was recorded. Evidence: end of acute climatic event with conditions returning toward seasonal norms; drought breaking with meaningful rainfall; or slow-onset indicators showing measurable improvement or stabilisation vs prior trend.',adj:'Choose +1 over 0 only when there is observable improvement from a previously stressed climatic state.'},
+          {score:'+2',cls:'pos2',name:'Improving',anchor:'Sustained improvement in climatic conditions from prior period of stress. Acute event impacts substantially resolved.',threshold:'Assign +2 where prior -1 or -2 was recorded. Evidence: sustained return to normal climatic conditions after extended period of stress; significant rainfall resolving a prior drought across the full quarter; or measurable positive trend in slow-onset indicators sustained across the quarter.',adj:'Choose +2 over +1 when improvement is confirmed and sustained across the full quarter.'},
+          {score:'+3',cls:'pos3',name:'Significantly Improving',anchor:'Substantial and sustained improvement from prior crisis. Exceptional events fully resolved and conditions returned to or improved beyond pre-stress baseline.',threshold:'Assign +3 only where prior -2 or -3 was recorded. Evidence: full resolution of prior climatic crisis; sustained return to normal conditions across the full quarter; no credible indicators of near-term recurrence.',adj:'+3 for climatic stress is rare. Slow-onset trends are unlikely to reverse quickly enough to warrant +3 in a single quarter.'}
+        ]
+      }
+    }
+  }
+};
+const domainOrder = ['Security','Political','Health','Economic','Regulatory','Environmental'];
+
+function buildNav() {
+  const topNav = document.getElementById('topNav');
+  const overallBtn = document.createElement('button');
+  overallBtn.className = 'nav-btn active';
+  overallBtn.textContent = 'Overall Matrix';
+  overallBtn.onclick = () => selectTop('overall', overallBtn);
+  topNav.appendChild(overallBtn);
+  domainOrder.forEach(d => {
+    const btn = document.createElement('button');
+    btn.className = 'nav-btn';
+    btn.textContent = d;
+    btn.onclick = () => selectTop(d, btn);
+    topNav.appendChild(btn);
+  });
+}
+
+function selectTop(id, btn) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const subNav = document.getElementById('subNav');
+  subNav.innerHTML = '';
+  const content = document.getElementById('content');
+  content.innerHTML = '';
+  if (id === 'overall') {
+    renderOverall();
+  } else {
+    const indKeys = Object.keys(indicatorData[id].indicators);
+    const allBtn = document.createElement('button');
+    allBtn.className = 'sub-btn active';
+    allBtn.textContent = 'All indicators';
+    allBtn.onclick = () => selectSub(id, null, allBtn);
+    subNav.appendChild(allBtn);
+    indKeys.forEach(k => {
+      const b = document.createElement('button');
+      b.className = 'sub-btn';
+      b.textContent = k;
+      b.onclick = () => selectSub(id, k, b);
+      subNav.appendChild(b);
+    });
+    renderDomainAll(id);
+  }
+}
+
+function selectSub(domainId, indId, btn) {
+  document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const content = document.getElementById('content');
+  content.innerHTML = '';
+  if (!indId) { renderDomainAll(domainId); } else { renderIndicator(domainId, indId); }
+}
+
+function renderOverall() {
+  const content = document.getElementById('content');
+  document.getElementById('subNav').innerHTML = '';
+  let html = `<div class="matrix-intro">${overallData.subtitle}</div><div class="score-levels">`;
+  overallData.levels.forEach((lvl, i) => {
+    const domKeys = Object.keys(lvl.domains);
+    let domainsHtml = domKeys.map((dk, di) => `
+      ${di > 0 ? '<div class="domain-divider"></div>' : ''}
+      <div class="domain-group-label">${dk}</div>
+      <div class="action-list">
+        ${lvl.domains[dk].map(a => `<div class="action-item"><div class="action-dot ${lvl.cls}-dot"></div><div>${a}</div></div>`).join('')}
+      </div>`).join('');
+    html += `
+      <div class="score-level ${lvl.cls}-card ${i===0?'open':''}">
+        <div class="level-header ${lvl.cls}-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="level-badge ${lvl.cls}-badge">${lvl.score}</span>
+          <div class="level-meta">
+            <div class="level-name">${lvl.name}</div>
+            <div class="level-bullets">
+              ${lvl.bullets.map(b => `<div class="level-bullet"><div class="bullet-dot"></div><div>${b}</div></div>`).join('')}
+            </div>
+          </div>
+          <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6l4 4 4-4"/></svg>
+        </div>
+        <div class="level-body">
+          <div class="actions-section-label">Recommended actions</div>
+          ${domainsHtml}
+        </div>
+      </div>`;
+  });
+  html += '</div>';
+  content.innerHTML = html;
+}
+
+function renderDomainAll(domainId) {
+  const content = document.getElementById('content');
+  content.innerHTML = '';
+  Object.keys(indicatorData[domainId].indicators).forEach((k, i) => {
+    if (i > 0) { const sep = document.createElement('div'); sep.className = 'ind-separator'; content.appendChild(sep); }
+    const div = document.createElement('div');
+    div.innerHTML = buildIndicatorHTML(domainId, k);
+    content.appendChild(div);
+  });
+}
+
+function renderIndicator(domainId, indId) {
+  const content = document.getElementById('content');
+  content.innerHTML = buildIndicatorHTML(domainId, indId);
+}
+
+function buildIndicatorHTML(domainId, indId) {
+  const ind = indicatorData[domainId].indicators[indId];
+  let html = `
+    <div class="ind-title">${indId}</div>
+    <div class="ind-desc">${ind.desc}</div>
+    <div class="boundary-note"><div class="boundary-label">Scope boundary</div>${ind.boundary}</div>
+    <div class="score-cards">`;
+  ind.scores.forEach((s, si) => {
+    html += `
+      <div class="score-card ${s.cls}-card ${si===0?'open':''}">
+        <div class="score-header ${s.cls}-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="score-badge ${s.cls}-badge">${s.score}</span>
+          <div class="score-meta">
+            <div class="score-name">${s.name}</div>
+            <div class="score-anchor">${s.anchor}</div>
+          </div>
+          <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6l4 4 4-4"/></svg>
+        </div>
+        <div class="score-body">
+          <div class="threshold-block ${s.cls}-threshold">
+            <div class="threshold-label">When to assign this score</div>
+            ${s.threshold}
+          </div>
+          <div class="adj-block">
+            <div class="adj-label">Adjacent score guidance</div>
+            ${s.adj}
+          </div>
+        </div>
+      </div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+buildNav();
+renderOverall();
+</script>
+</body>
+</html>
